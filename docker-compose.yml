@@ -4,7 +4,7 @@ services:
     container_name: rumsense-backend
     ports:
       - "8000:8000" # API
-      - "7000:7000/udp" # Nooploop UDP Ingest
+      - "5000:5000/udp" # Nooploop UDP Ingest
     volumes:
       - ./backend:/app
     restart: always

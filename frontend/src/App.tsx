@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Activity, Map, Settings, BarChart, Database } from 'lucide-react';
+import { Activity, Map, Settings, BarChart, Database, Terminal } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Analysis from './pages/Analysis';
 import Engineering from './pages/Engineering';
 import Charts from './pages/Charts';
 import Data from './pages/Data';
+import Debug from './pages/Debug';
 
 // Layout Component
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -72,6 +73,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Settings className={`w-5 h-5 mr-3 ${isActive('/engineering') ? 'text-blue-600' : 'text-gray-400'}`} />
             Ingeniería
           </Link>
+          <Link
+            to="/debug"
+            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/debug')
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+          >
+            <Terminal className={`w-5 h-5 mr-3 ${isActive('/debug') ? 'text-blue-600' : 'text-gray-400'}`} />
+            Debug
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-gray-100">
@@ -105,6 +116,7 @@ function App() {
           <Route path="/charts" element={<Charts />} />
           <Route path="/data" element={<Data />} />
           <Route path="/engineering" element={<Engineering />} />
+          <Route path="/debug" element={<Debug />} />
         </Routes>
       </Layout>
     </Router>

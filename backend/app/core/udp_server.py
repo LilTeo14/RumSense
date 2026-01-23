@@ -1,41 +1,72 @@
-import asyncio
+import socket
+import threading
 import json
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
-class UDPTelemetryProtocol(asyncio.DatagramProtocol):
-    def __init__(self):
+class UDPServer(threading.Thread):
+    def __init__(self, host: str, port: int, broadcast_callback, loop: asyncio.AbstractEventLoop):
         super().__init__()
-        self.transport = None
+        self.host = host
+        self.port = port
+        self.broadcast_callback = broadcast_callback
+        self.loop = loop
+        self.running = True
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.daemon = True # Daemon thread exits when main program exits
 
-    def connection_made(self, transport):
-        self.transport = transport
-        logger.info("UDP Server started and listening.")
-
-    def datagram_received(self, data, addr):
+    def run(self):
         try:
-            message = data.decode()
-            data_json = json.loads(message)
-            # Expected format from Nooploop:
-            # {
-            #   "uid": "...", "deviceName": "...",
-            #   "data": { "pos": [x,y,z], "vel": [vx,vy,vz], "time": ..., "rxRssi": ... }
-            # }
+            # Important: Bind to 0.0.0.0 inside Docker to receive traffic from mapped ports
+            self.sock.bind((self.host, self.port))
+            logger.info(f"👀 UDP Server (Threaded) listening on {self.host}:{self.port}")
             
-            self.process_telemetry(data_json)
-            
-        except json.JSONDecodeError:
-            logger.warning(f"Received invalid JSON from {addr}")
-        except Exception as e:
-            logger.error(f"Error processing UDP packet: {e}")
+            while self.running:
+                try:
+                    # Blocking receive, exactly like visor_api.py
+                    data, addr = self.sock.recvfrom(4096)
+                    
+                    if not data:
+                        continue
 
-    def process_telemetry(self, data: dict):
-        # TODO: Integrate with storage/processing logic
-        # For now, just log a sample to verify ingestion
-        uid = data.get("uid")
-        telemetry = data.get("data", {})
-        pos = telemetry.get("pos")
-        
-        if uid and pos:
-            logger.debug(f"Telemetry received - UID: {uid}, Pos: {pos}")
+                    try:
+                        message = data.decode('utf-8')
+                        # Log raw for debugging if needed, but keep it clean
+                        logger.info(f"Received UDP: {message[:100]}...")
+                        
+                        # Validate JSON
+                        json.loads(message)
+
+                        # Bridge to Async Loop for Websocket Broadcast
+                        if self.broadcast_callback and self.loop:
+                            future = asyncio.run_coroutine_threadsafe(
+                                self.broadcast_callback(message), 
+                                self.loop
+                            )
+                            # Optional: Check for exceptions in the future logic if necessary
+                            
+                    except UnicodeDecodeError:
+                        logger.warning(f"⚠️ Received non-utf8 data from {addr}")
+                    except json.JSONDecodeError:
+                        logger.warning(f"⚠️ Received invalid JSON from {addr}")
+                    except Exception as e:
+                        logger.error(f"❌ Error processing message: {e}")
+
+                except OSError as e:
+                    if self.running:
+                        logger.error(f"Error receiving data: {e}")
+                        
+        except Exception as e:
+            logger.error(f"❌ CRITICAL: Failed to bind UDP socket on {self.host}:{self.port}. Error: {e}")
+        finally:
+            self.sock.close()
+            logger.info("👋 UDP Server thread stopped")
+
+    def stop(self):
+        self.running = False
+        try:
+            self.sock.close()
+        except:
+            pass
