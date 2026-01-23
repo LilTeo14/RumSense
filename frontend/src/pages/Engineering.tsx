@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, RefreshCw } from 'lucide-react';
+import { Save, RefreshCw, Users } from 'lucide-react';
 
 export default function Engineering() {
     return (
@@ -81,6 +81,40 @@ export default function Engineering() {
                             </div>
                             <input type="range" min="100" max="5000" defaultValue="500" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                             <p className="mt-1 text-xs text-gray-500">Alerta si la distancia diaria es menor a este valor.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Interaction Configuration */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center">
+                            <Users className="w-5 h-5 mr-3 text-blue-600" />
+                            <h3 className="font-bold text-gray-800 text-lg">Configuración de Interacciones</h3>
+                        </div>
+                        <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                            <Save className="w-4 h-4 mr-2" />
+                            Guardar Configuración
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-medium text-gray-700">Distancia de Proximidad</label>
+                                <span className="text-sm font-bold text-blue-600">1.5 m</span>
+                            </div>
+                            <input type="range" min="0.5" max="5.0" step="0.1" defaultValue="1.5" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                            <p className="mt-1 text-xs text-gray-500">Distancia máxima entre tags para considerar un posible contacto.</p>
+                        </div>
+
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-medium text-gray-700">Tiempo Mínimo de Permanencia</label>
+                                <span className="text-sm font-bold text-blue-600">5 seg</span>
+                            </div>
+                            <input type="range" min="1" max="60" defaultValue="5" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                            <p className="mt-1 text-xs text-gray-500">Tiempo que deben permanecer dentro del rango para registrar una interacción.</p>
                         </div>
                     </div>
                 </div>

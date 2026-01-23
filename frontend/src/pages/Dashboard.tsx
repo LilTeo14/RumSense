@@ -1,13 +1,13 @@
 import React from 'react';
-import { Battery, Activity, Moon, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Battery, Activity, Moon, AlertTriangle, CheckCircle, Zap, Users } from 'lucide-react';
 
 // Mock Data
 const ANIMALS = [
-    { id: '1', name: 'Bessie', status: 'OK', battery: 85, distance: 2.4, rest: 6.5 },
-    { id: '2', name: 'Molly', status: 'WARNING', battery: 42, distance: 0.8, rest: 11.2 },
-    { id: '3', name: 'Daisy', status: 'OK', battery: 91, distance: 3.1, rest: 5.8 },
-    { id: '4', name: 'Bella', status: 'CRITICAL', battery: 12, distance: 0.1, rest: 14.0 },
-    { id: '5', name: 'Luna', status: 'OK', battery: 78, distance: 2.8, rest: 7.1 },
+    { id: '1', name: 'Bessie', status: 'OK', battery: 85, distance: 2.4, rest: 6.5, speed: 0.4, interactions: 12 },
+    { id: '2', name: 'Molly', status: 'WARNING', battery: 42, distance: 0.8, rest: 11.2, speed: 0.1, interactions: 5 },
+    { id: '3', name: 'Daisy', status: 'OK', battery: 91, distance: 3.1, rest: 5.8, speed: 0.5, interactions: 18 },
+    { id: '4', name: 'Bella', status: 'CRITICAL', battery: 12, distance: 0.1, rest: 14.0, speed: 0.0, interactions: 2 },
+    { id: '5', name: 'Luna', status: 'OK', battery: 78, distance: 2.8, rest: 7.1, speed: 0.4, interactions: 15 },
 ];
 
 const StatusIcon = ({ status }: { status: string }) => {
@@ -21,7 +21,7 @@ const AnimalCard = ({ animal }: { animal: any }) => (
         <div className="flex justify-between items-start mb-4">
             <div className="flex items-center space-x-3">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${animal.status === 'OK' ? 'bg-green-100 text-green-600' :
-                        animal.status === 'WARNING' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
+                    animal.status === 'WARNING' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'
                     }`}>
                     <span className="font-bold text-lg">{animal.name[0]}</span>
                 </div>
@@ -47,6 +47,20 @@ const AnimalCard = ({ animal }: { animal: any }) => (
                     <span className="text-xs font-medium">Descanso</span>
                 </div>
                 <p className="text-lg font-bold text-gray-800">{animal.rest} h</p>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-lg">
+                <div className="flex items-center text-orange-600 mb-1">
+                    <Zap className="w-4 h-4 mr-2" />
+                    <span className="text-xs font-medium">Velocidad (6h)</span>
+                </div>
+                <p className="text-lg font-bold text-gray-800">{animal.speed} km/h</p>
+            </div>
+            <div className="bg-teal-50 p-3 rounded-lg">
+                <div className="flex items-center text-teal-600 mb-1">
+                    <Users className="w-4 h-4 mr-2" />
+                    <span className="text-xs font-medium">Interacciones</span>
+                </div>
+                <p className="text-lg font-bold text-gray-800">{animal.interactions}</p>
             </div>
         </div>
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Activity, Map, Settings } from 'lucide-react';
+import { Activity, Map, Settings, BarChart, Database } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Analysis from './pages/Analysis';
 import Engineering from './pages/Engineering';
+import Charts from './pages/Charts';
+import Data from './pages/Data';
 
 // Layout Component
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -23,8 +25,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <Link
             to="/"
             className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/')
-                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
           >
             <Activity className={`w-5 h-5 mr-3 ${isActive('/') ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -33,18 +35,38 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <Link
             to="/analysis"
             className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/analysis')
-                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
           >
             <Map className={`w-5 h-5 mr-3 ${isActive('/analysis') ? 'text-blue-600' : 'text-gray-400'}`} />
             Análisis
           </Link>
           <Link
+            to="/charts"
+            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/charts')
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+          >
+            <BarChart className={`w-5 h-5 mr-3 ${isActive('/charts') ? 'text-blue-600' : 'text-gray-400'}`} />
+            Gráficos
+          </Link>
+          <Link
+            to="/data"
+            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/data')
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+          >
+            <Database className={`w-5 h-5 mr-3 ${isActive('/data') ? 'text-blue-600' : 'text-gray-400'}`} />
+            Datos
+          </Link>
+          <Link
             to="/engineering"
             className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/engineering')
-                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
           >
             <Settings className={`w-5 h-5 mr-3 ${isActive('/engineering') ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -80,6 +102,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/analysis" element={<Analysis />} />
+          <Route path="/charts" element={<Charts />} />
+          <Route path="/data" element={<Data />} />
           <Route path="/engineering" element={<Engineering />} />
         </Routes>
       </Layout>
