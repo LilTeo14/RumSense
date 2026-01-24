@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, RefreshCw, Users } from 'lucide-react';
+import { Save, RefreshCw, Users, Map } from 'lucide-react';
 
 export default function Engineering() {
     return (
@@ -115,6 +115,46 @@ export default function Engineering() {
                             </div>
                             <input type="range" min="1" max="60" defaultValue="5" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                             <p className="mt-1 text-xs text-gray-500">Tiempo que deben permanecer dentro del rango para registrar una interacción.</p>
+                        </div>
+                    </div>
+                </div>
+                {/* Map Configuration */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center">
+                            <Map className="w-5 h-5 mr-3 text-blue-600" />
+                            <h3 className="font-bold text-gray-800 text-lg">Configuración del Mapa</h3>
+                        </div>
+                        <button
+                            onClick={() => {
+                                const input = document.getElementById('mapSizeInput') as HTMLInputElement;
+                                if (input) {
+                                    localStorage.setItem('mapSize', input.value);
+                                    window.dispatchEvent(new Event('storage')); // Notify other components
+                                    alert('Configuración guardada correctamente');
+                                }
+                            }}
+                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                        >
+                            <Save className="w-4 h-4 mr-2" />
+                            Guardar
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-medium text-gray-700">Tamaño del Mapa (Metros)</label>
+                            </div>
+                            <input
+                                id="mapSizeInput"
+                                type="number"
+                                min="10"
+                                max="1000"
+                                defaultValue={localStorage.getItem('mapSize') || "40"}
+                                className="w-full border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Define las dimensiones del área de visualización (Ancho x Alto).</p>
                         </div>
                     </div>
                 </div>

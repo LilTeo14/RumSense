@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Activity, Map, Settings, BarChart, Database, Terminal } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
-import Analysis from './pages/Analysis';
+import MapPage from './pages/Map';
 import Engineering from './pages/Engineering';
 import Charts from './pages/Charts';
 import Data from './pages/Data';
@@ -22,67 +22,72 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <h1 className="text-2xl font-black text-blue-600 tracking-tight">RumSense</h1>
           <p className="text-xs text-gray-400 mt-1">Desarrollado por Tenku Servicios para el Dr.Daniel Ignacio Cartes Lillo</p>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <Link
-            to="/"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <Activity className={`w-5 h-5 mr-3 ${isActive('/') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Panel
-          </Link>
-          <Link
-            to="/analysis"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/analysis')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <Map className={`w-5 h-5 mr-3 ${isActive('/analysis') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Análisis
-          </Link>
-          <Link
-            to="/charts"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/charts')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <BarChart className={`w-5 h-5 mr-3 ${isActive('/charts') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Gráficos
-          </Link>
-          <Link
-            to="/data"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/data')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <Database className={`w-5 h-5 mr-3 ${isActive('/data') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Datos
-          </Link>
-          <Link
-            to="/engineering"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/engineering')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <Settings className={`w-5 h-5 mr-3 ${isActive('/engineering') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Ingeniería
-          </Link>
-          <Link
-            to="/debug"
-            className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/debug')
-              ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-          >
-            <Terminal className={`w-5 h-5 mr-3 ${isActive('/debug') ? 'text-blue-600' : 'text-gray-400'}`} />
-            Debug
-          </Link>
+        <nav className="flex-1 p-4 flex flex-col">
+          <div className="space-y-2">
+            <Link
+              to="/"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Activity className={`w-5 h-5 mr-3 ${isActive('/') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Panel
+            </Link>
+            <Link
+              to="/map"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/map')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Map className={`w-5 h-5 mr-3 ${isActive('/map') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Mapa
+            </Link>
+            <Link
+              to="/charts"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/charts')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <BarChart className={`w-5 h-5 mr-3 ${isActive('/charts') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Gráficos
+            </Link>
+            <Link
+              to="/data"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/data')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Database className={`w-5 h-5 mr-3 ${isActive('/data') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Datos
+            </Link>
+          </div>
+
+          <div className="mt-auto space-y-2">
+            <Link
+              to="/engineering"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/engineering')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Settings className={`w-5 h-5 mr-3 ${isActive('/engineering') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Opciones
+            </Link>
+            <Link
+              to="/debug"
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive('/debug')
+                ? 'bg-blue-50 text-blue-700 font-bold shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Terminal className={`w-5 h-5 mr-3 ${isActive('/debug') ? 'text-blue-600' : 'text-gray-400'}`} />
+              Debug
+            </Link>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-gray-100">
@@ -112,7 +117,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/analysis" element={<Analysis />} />
+          <Route path="/map" element={<MapPage />} />
           <Route path="/charts" element={<Charts />} />
           <Route path="/data" element={<Data />} />
           <Route path="/engineering" element={<Engineering />} />
