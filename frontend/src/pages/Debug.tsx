@@ -28,9 +28,13 @@ const Debug = () => {
         return acc;
     }, {} as Record<string, PositionData>);
 
-    useEffect(() => {
-        // Connect to Backend WebSocket on Port 8000 (FastAPI default)
-        // The backend receives UDP data on Port 5000 and broadcasts it here.
+    const [wsInstance, setWsInstance] = useState<WebSocket | null>(null);
+
+    const connectWs = () => {
+        if (wsInstance) {
+            wsInstance.close();
+        }
+
         const ws = new WebSocket('ws://localhost:8000/ws');
 
         ws.onopen = () => {
@@ -47,15 +51,21 @@ const Debug = () => {
             try {
                 const data = JSON.parse(event.data);
                 setLastUpdate(new Date());
-                setMessages((prev: PositionData[]) => [data, ...prev].slice(0, 50)); // Keep last 50 messages
+                setMessages((prev: PositionData[]) => [data, ...prev].slice(0, 50));
             } catch (e) {
                 console.error('Error parsing JSON:', e);
             }
         };
 
+        setWsInstance(ws);
+    };
+
+    useEffect(() => {
+        connectWs();
         return () => {
-            ws.close();
+            if (wsInstance) wsInstance.close();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -65,10 +75,20 @@ const Debug = () => {
                     <h2 className="text-3xl font-black text-gray-800 tracking-tight">Debug Console</h2>
                     <p className="text-gray-500 mt-1">Inspección de datos en tiempo real (Port 5000)</p>
                 </div>
-                <div className={`flex items-center px-4 py-2 rounded-full border ${isConnected ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                    }`}>
-                    {isConnected ? <Wifi className="w-5 h-5 mr-2" /> : <WifiOff className="w-5 h-5 mr-2" />}
-                    <span className="font-bold">{isConnected ? 'Conectado' : 'Simulando / Desconectado'}</span>
+                <div className="flex items-center gap-3">
+                    {!isConnected && (
+                        <button
+                            onClick={connectWs}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold flex items-center transition-colors shadow-sm"
+                        >
+                            Reconectar
+                        </button>
+                    )}
+                    <div className={`flex items-center px-4 py-2 rounded-full border ${isConnected ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                        }`}>
+                        {isConnected ? <Wifi className="w-5 h-5 mr-2" /> : <WifiOff className="w-5 h-5 mr-2" />}
+                        <span className="font-bold">{isConnected ? 'Conectado' : 'Simulando / Desconectado'}</span>
+                    </div>
                 </div>
             </header>
 

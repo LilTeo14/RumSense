@@ -3,6 +3,7 @@ import threading
 import json
 import logging
 import asyncio
+from app.core.database import record_position
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +34,24 @@ class UDPServer(threading.Thread):
 
                     try:
                         message = data.decode('utf-8')
-                        # Log raw for debugging if needed, but keep it clean
-                        logger.info(f"Received UDP: {message[:100]}...")
                         
                         # Validate JSON
-                        json.loads(message)
+                        json_data = json.loads(message)
+
+                        # Save to Database
+                        try:
+                            if "data" in json_data and "pos" in json_data["data"]:
+                                pos = json_data["data"]["pos"]
+                                record_position(
+                                    uid=json_data.get("uid"),
+                                    device_name=json_data.get("deviceName"),
+                                    x=pos[0] if len(pos) > 0 else 0.0,
+                                    y=pos[1] if len(pos) > 1 else 0.0,
+                                    z=pos[2] if len(pos) > 2 else 0.0,
+                                    timestamp=json_data["data"].get("time")
+                                )
+                        except Exception as e:
+                            logger.error(f"❌ DB Logic Error: {e}")
 
                         # Bridge to Async Loop for Websocket Broadcast
                         if self.broadcast_callback and self.loop:
@@ -45,7 +59,6 @@ class UDPServer(threading.Thread):
                                 self.broadcast_callback(message), 
                                 self.loop
                             )
-                            # Optional: Check for exceptions in the future logic if necessary
                             
                     except UnicodeDecodeError:
                         logger.warning(f"⚠️ Received non-utf8 data from {addr}")

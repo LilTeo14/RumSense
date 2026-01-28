@@ -1,9 +1,12 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 import logging
-from typing import List
+import json
+from typing import List, Optional
 from app.core.udp_server import UDPServer
+from app.core.database import init_db, get_all_tags, check_hibernation, get_history_range
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,9 +37,22 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+async def hibernation_monitor():
+    while True:
+        try:
+            # Check every 2 seconds, timeout tags older than 5 seconds
+            # Using async wrapper if needed, but the function is sync. 
+            # Since sqlite is fast for small updates, calling directly is OK or use to_thread
+            await asyncio.to_thread(check_hibernation, 5.0)
+        except Exception as e:
+            logger.error(f"Hibernation monitor error: {e}")
+        await asyncio.sleep(2)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Start UDP Server Thread
+    # Startup: Initialize DB and Start UDP Server Thread
+    init_db()
+    
     loop = asyncio.get_running_loop()
     
     # Initialize implementation strictly matching visor_api.py approach but threaded
@@ -49,27 +65,52 @@ async def lifespan(app: FastAPI):
     
     udp_server.start()
     
+    # Start monitor task
+    monitor_task = asyncio.create_task(hibernation_monitor())
+    
     yield
     
-    # Shutdown: Stop UDP Server
+    # Shutdown
+    monitor_task.cancel()
     udp_server.stop()
     udp_server.join(timeout=2.0)
     logger.info("UDP Server stopped")
 
 app = FastAPI(title="RumSense API", lifespan=lifespan)
 
+# Add CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 async def root():
     return {"message": "RumSense API is running", "udp_in_port": UDP_PORT, "mode": "threaded_socket"}
+
+@app.get("/tags")
+async def get_tags_endpoint():
+    return {"tags": await asyncio.to_thread(get_all_tags)}
+
+@app.get("/history")
+async def get_history(start: int, end: int):
+    # Expects timestamps in MS
+    return await asyncio.to_thread(get_history_range, start, end)
+
+@app.get("/stats")
+async def get_stats(start: int, end: int):
+    # Expects timestamps in MS
+    from app.core.database import calculate_stats
+    return await asyncio.to_thread(calculate_stats, start, end)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            # Keep the connection alive; we only send data from server to client
-            # but we need to await something to keep the loop running.
-            # Receiving text prevents the handler from exiting.
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
