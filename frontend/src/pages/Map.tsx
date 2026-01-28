@@ -87,6 +87,10 @@ export default function MapPage() {
             setBgOffsetY(parseFloat(localStorage.getItem('bgOffsetY') || "0"));
             setBgOpacity(parseFloat(localStorage.getItem('bgOpacity') || "1.0"));
 
+            setFlipX(localStorage.getItem('flipX') === 'true');
+            setFlipY(localStorage.getItem('flipY') === 'true');
+            setRotation(parseInt(localStorage.getItem('rotation') || '0'));
+
             const savedMappings = localStorage.getItem('tagMappings');
             if (savedMappings) setTagMappings(JSON.parse(savedMappings));
         };
@@ -94,16 +98,11 @@ export default function MapPage() {
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
-    // Save settings when changed (only map main config, background is read-only here)
-    useEffect(() => {
-        localStorage.setItem('mapSize', mapSize.toString());
-        localStorage.setItem('offsetX', offsetX.toString());
-        localStorage.setItem('offsetY', offsetY.toString());
-    }, [mapSize, offsetX, offsetY]);
 
-    const [flipX, setFlipX] = useState(true);
-    const [flipY, setFlipY] = useState(true);
-    const [rotation, setRotation] = useState(0);
+
+    const [flipX, setFlipX] = useState(() => localStorage.getItem('flipX') === 'true');
+    const [flipY, setFlipY] = useState(() => localStorage.getItem('flipY') === 'true');
+    const [rotation, setRotation] = useState(() => parseInt(localStorage.getItem('rotation') || '0'));
     const [beacons, setBeacons] = useState<Beacon[]>([]);
 
     const fetchBeacons = async () => {
@@ -422,13 +421,7 @@ export default function MapPage() {
 
                 {/* Map Area */}
                 <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 relative overflow-hidden flex flex-col items-center justify-center p-8">
-                    {/* Beacons Control Overlay */}
-                    <div className="absolute top-4 right-4 z-30 bg-white/90 p-2 rounded-lg border shadow-sm flex gap-2">
-                        <button onClick={() => setFlipX(!flipX)} className={`p-1.5 rounded hover:bg-gray-100 ${flipX ? 'text-blue-600' : 'text-gray-400'}`} title="Flip X"><FlipHorizontal size={16} /></button>
-                        <button onClick={() => setFlipY(!flipY)} className={`p-1.5 rounded hover:bg-gray-100 ${flipY ? 'text-blue-600' : 'text-gray-400'}`} title="Flip Y"><FlipVertical size={16} /></button>
-                        <button onClick={() => setRotation(r => (r + 90) % 360)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Rotate"><RotateCw size={16} /></button>
-                        {/* Auto-load, so no load button */}
-                    </div>
+
 
                     <div
                         className="relative bg-gray-50 border-2 border-gray-200 rounded-lg shadow-inner select-none transition-all duration-300 overflow-hidden"
@@ -441,8 +434,8 @@ export default function MapPage() {
                             className="absolute pointer-events-none transition-all duration-300"
                             style={{
                                 width: `${bgSize}%`,
-                                left: `${bgOffsetX}%`,
-                                top: `${bgOffsetY}%`,
+                                left: `${(bgOffsetX / mapSize) * 100}%`,
+                                bottom: `${(bgOffsetY / mapSize) * 100}%`,
                                 opacity: bgOpacity,
                                 maxWidth: 'none'
                             }}
