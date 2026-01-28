@@ -435,7 +435,7 @@ export default function MapPage() {
                     >
                         {/* Background Image */}
                         <img
-                            src="/Fondo.png"
+                            src="/Fondo.png?v=updated"
                             alt="Background"
                             className="absolute pointer-events-none transition-all duration-300"
                             style={{

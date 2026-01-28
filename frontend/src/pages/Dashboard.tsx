@@ -78,7 +78,14 @@ export default function Dashboard() {
                 const response = await fetch('http://localhost:8000/tags');
                 const data = await response.json();
                 if (data.tags) {
-                    setTags(data.tags);
+                    const mappedTags = data.tags.map((t: any) => ({
+                        id: t.uid,
+                        x: t.pos && t.pos.length > 0 ? t.pos[0] : 0,
+                        y: t.pos && t.pos.length > 1 ? t.pos[1] : 0,
+                        last_seen: t.lastSeen,
+                        status: t.online ? 'active' : 'inactive'
+                    }));
+                    setTags(mappedTags);
                 }
             } catch (error) {
                 console.error("Error fetching tags:", error);
