@@ -35,7 +35,8 @@ const Debug = () => {
             wsInstance.close();
         }
 
-        const ws = new WebSocket('ws://localhost:8000/ws');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws`);
 
         ws.onopen = () => {
             setIsConnected(true);

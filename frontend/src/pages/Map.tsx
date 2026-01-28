@@ -108,7 +108,7 @@ export default function MapPage() {
 
     const fetchBeacons = async () => {
         try {
-            const response = await fetch('http://localhost:8088/openapi/v1/devices?deviceType=2');
+            const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8088/openapi/v1/devices?deviceType=2`);
             const result = await response.json();
             if (result.data && result.data.records) {
                 const fetchedBeacons = result.data.records as Beacon[];
@@ -139,7 +139,8 @@ export default function MapPage() {
             return;
         }
 
-        const ws = new WebSocket('ws://localhost:8000/ws');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws`);
         ws.onopen = () => setIsConnected(true);
         ws.onclose = () => setIsConnected(false);
         ws.onmessage = (event) => {
@@ -178,7 +179,7 @@ export default function MapPage() {
         const startTs = new Date(startDate).getTime();
         const endTs = new Date(endDate).getTime();
         try {
-            const res = await fetch(`http://localhost:8000/history?start=${startTs}&end=${endTs}`);
+            const res = await fetch(`/api/history?start=${startTs}&end=${endTs}`);
             const data = await res.json();
             setHistoryData(data);
             if (data.length > 0) {
@@ -249,7 +250,7 @@ export default function MapPage() {
 
     const fetchStats = async (start: number, end: number) => {
         try {
-            const res = await fetch(`http://localhost:8000/stats?start=${start}&end=${end}`);
+            const res = await fetch(`/api/stats?start=${start}&end=${end}`);
             const data = await res.json();
             setStats(data);
         } catch (e) {

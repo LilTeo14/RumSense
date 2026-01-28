@@ -75,7 +75,7 @@ export default function Dashboard() {
 
         const fetchTags = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tags');
+                const response = await fetch('/api/tags');
                 const data = await response.json();
                 if (data.tags) {
                     const mappedTags = data.tags.map((t: any) => ({
