@@ -8,7 +8,7 @@ export default function Engineering() {
     });
 
     // Map Config State - Initialize from LocalStorage
-    const [mapSize, setMapSize] = useState(() => localStorage.getItem('mapSize') || "40");
+    const [mapSize, setMapSize] = useState(() => localStorage.getItem('mapSize') || "10");
     const [offsetX, setOffsetX] = useState(() => localStorage.getItem('offsetX') || "-2");
     const [offsetY, setOffsetY] = useState(() => localStorage.getItem('offsetY') || "-2");
 
@@ -126,7 +126,7 @@ export default function Engineering() {
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Zoom / Tamaño (Metros)</label>
                                     <div className="flex items-center gap-4">
-                                        <input type="range" min="10" max="200" step="1" value={mapSize} onChange={(e) => setMapSize(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                        <input type="range" min="1" max="10" step="0.01" value={mapSize} onChange={(e) => setMapSize(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                                         <input type="number" value={mapSize} onChange={(e) => setMapSize(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
                                     </div>
                                 </div>

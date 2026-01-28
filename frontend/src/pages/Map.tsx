@@ -40,7 +40,7 @@ export default function MapPage() {
     // Offset and Size
     const [mapSize, setMapSize] = useState(() => {
         const saved = localStorage.getItem('mapSize');
-        return saved ? parseFloat(saved) : 40.0;
+        return saved ? parseFloat(saved) : 10.0;
     });
 
     // Default offsets to 0, or read from storage
@@ -78,7 +78,7 @@ export default function MapPage() {
 
     useEffect(() => {
         const handleStorage = () => {
-            setMapSize(parseFloat(localStorage.getItem('mapSize') || "40"));
+            setMapSize(parseFloat(localStorage.getItem('mapSize') || "10"));
             setOffsetX(parseFloat(localStorage.getItem('offsetX') || "-2"));
             setOffsetY(parseFloat(localStorage.getItem('offsetY') || "-2"));
 
