@@ -128,27 +128,36 @@ export default function Engineering() {
                         {/* Map View */}
                         <div>
                             <h4 className="font-semibold text-gray-600 text-sm border-b pb-1 mb-3">Vista (Coordenadas)</h4>
-                            <div className="space-y-3">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Zoom / Tamaño (Metros)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="1" max="10" step="0.01" value={mapSize} onChange={(e) => setMapSize(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={mapSize} onChange={(e) => setMapSize(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Zoom / Tamaño (Metros)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={mapSize}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMapSize(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Offset X (Horizontal)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="-5" max="5" step="0.01" value={offsetX} onChange={(e) => setOffsetX(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={offsetX} onChange={(e) => setOffsetX(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Offset X (Horizontal)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={offsetX}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOffsetX(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Offset Y (Vertical)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="-5" max="5" step="0.01" value={offsetY} onChange={(e) => setOffsetY(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={offsetY} onChange={(e) => setOffsetY(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Offset Y (Vertical)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={offsetY}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOffsetY(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -158,34 +167,48 @@ export default function Engineering() {
                             <h4 className="font-semibold text-gray-600 text-sm border-b pb-1 mb-3 flex items-center gap-2">
                                 <Image size={14} /> Imagen de Fondo
                             </h4>
-                            <div className="space-y-3">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Tamaño (%)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="10" max="200" step="1" value={bgSize} onChange={(e) => setBgSize(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={bgSize} onChange={(e) => setBgSize(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Tamaño (%)</label>
+                                    <input
+                                        type="number"
+                                        step="1"
+                                        value={bgSize}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgSize(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Offset X (Metros)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="-10" max="10" step="0.01" value={bgOffsetX} onChange={(e) => setBgOffsetX(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={bgOffsetX} onChange={(e) => setBgOffsetX(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Offset X (Metros)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={bgOffsetX}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgOffsetX(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Offset Y (Metros)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="-10" max="10" step="0.01" value={bgOffsetY} onChange={(e) => setBgOffsetY(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <input type="number" value={bgOffsetY} onChange={(e) => setBgOffsetY(e.target.value)} className="w-16 border-gray-200 rounded px-2 py-1 text-xs" />
-                                    </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Offset Y (Metros)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={bgOffsetY}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgOffsetY(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Opacidad</label>
-                                    <div className="flex items-center gap-4">
-                                        <input type="range" min="0" max="1" step="0.1" value={bgOpacity} onChange={(e) => setBgOpacity(e.target.value)} className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                        <span className="text-xs w-16">{bgOpacity}</span>
-                                    </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Opacidad</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="1"
+                                        value={bgOpacity}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgOpacity(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
                                 </div>
                             </div>
                         </div>
