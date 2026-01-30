@@ -3,6 +3,7 @@ import threading
 import json
 import logging
 import asyncio
+import time
 from app.core.database import record_position
 
 logger = logging.getLogger(__name__)
@@ -42,11 +43,14 @@ class UDPServer(threading.Thread):
                         try:
                             if "data" in json_data and "pos" in json_data["data"]:
                                 pos = json_data["data"]["pos"]
-                                # Fix Timestamp: Detect Seconds vs ms
-                                raw_time = json_data["data"].get("time", 0)
-                                # Heuristic: If less than year 1973 (in ms, ~1e11), it is likely in seconds. 
-                                # Current time in ms is ~1.7e12, in seconds ~1.7e9.
-                                if raw_time < 3000000000: # < 3 billion (year 2065 in seconds)
+                                # Fix Timestamp: Detect Seconds vs ms or Null
+                                raw_time = json_data["data"].get("time")
+                                
+                                if raw_time is None:
+                                    # Fallback to Server Time if null/missing
+                                    raw_time = int(time.time() * 1000)
+                                elif raw_time < 3000000000: 
+                                    # Heuristic: If < 3 billion, it's seconds. Convert to ms.
                                     raw_time *= 1000
 
                                 record_position(
