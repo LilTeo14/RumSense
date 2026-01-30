@@ -38,8 +38,13 @@ interface StatsData {
 export default function MapPage() {
     // --- Settings & Beacons ---
     // Offset and Size
-    const [mapSize, setMapSize] = useState(() => {
-        const saved = localStorage.getItem('mapSize');
+    // Offset and Size
+    const [mapWidth, setMapWidth] = useState(() => {
+        const saved = localStorage.getItem('mapWidth');
+        return saved ? parseFloat(saved) : 10.0;
+    });
+    const [mapHeight, setMapHeight] = useState(() => {
+        const saved = localStorage.getItem('mapHeight');
         return saved ? parseFloat(saved) : 10.0;
     });
 
@@ -54,9 +59,13 @@ export default function MapPage() {
     });
 
     // Background Image State
-    const [bgSize, setBgSize] = useState(() => {
-        const saved = localStorage.getItem('bgSize');
-        return saved ? parseFloat(saved) : 100;
+    const [bgWidth, setBgWidth] = useState(() => {
+        const saved = localStorage.getItem('bgWidth');
+        return saved ? parseFloat(saved) : 10.0;
+    });
+    const [bgHeight, setBgHeight] = useState(() => {
+        const saved = localStorage.getItem('bgHeight');
+        return saved ? parseFloat(saved) : 10.0;
     });
     const [bgOffsetX, setBgOffsetX] = useState(() => {
         const saved = localStorage.getItem('bgOffsetX');
@@ -78,11 +87,13 @@ export default function MapPage() {
 
     useEffect(() => {
         const handleStorage = () => {
-            setMapSize(parseFloat(localStorage.getItem('mapSize') || "10"));
+            setMapWidth(parseFloat(localStorage.getItem('mapWidth') || "10"));
+            setMapHeight(parseFloat(localStorage.getItem('mapHeight') || "10"));
             setOffsetX(parseFloat(localStorage.getItem('offsetX') || "-2"));
             setOffsetY(parseFloat(localStorage.getItem('offsetY') || "-2"));
 
-            setBgSize(parseFloat(localStorage.getItem('bgSize') || "100"));
+            setBgWidth(parseFloat(localStorage.getItem('bgWidth') || "10"));
+            setBgHeight(parseFloat(localStorage.getItem('bgHeight') || "10"));
             setBgOffsetX(parseFloat(localStorage.getItem('bgOffsetX') || "0"));
             setBgOffsetY(parseFloat(localStorage.getItem('bgOffsetY') || "0"));
             setBgOpacity(parseFloat(localStorage.getItem('bgOpacity') || "1.0"));
@@ -280,8 +291,8 @@ export default function MapPage() {
     // Normalized Coordinate Calculation
     const getNormalized = (x: number, y: number) => {
         // Raw normalized 0..1 relative to view
-        let nx = (x - offsetX) / mapSize;
-        let ny = (y - offsetY) / mapSize;
+        let nx = (x - offsetX) / mapWidth;
+        let ny = (y - offsetY) / mapHeight;
 
         // Clamp only for drawing outside? Or just let it flow out? 
         // User wants fixed view.
@@ -425,7 +436,7 @@ export default function MapPage() {
 
                     <div
                         className="relative bg-gray-50 border-2 border-gray-200 rounded-lg shadow-inner select-none transition-all duration-300 overflow-hidden"
-                        style={{ width: '100%', maxWidth: '80vh', aspectRatio: '1/1' }}
+                        style={{ width: '100%', maxWidth: '80vh', aspectRatio: `${mapWidth}/${mapHeight}` }}
                     >
                         {/* Background Image */}
                         <img
@@ -433,9 +444,10 @@ export default function MapPage() {
                             alt="Background"
                             className="absolute pointer-events-none transition-all duration-300"
                             style={{
-                                width: `${bgSize}%`,
-                                left: `${(bgOffsetX / mapSize) * 100}%`,
-                                bottom: `${(bgOffsetY / mapSize) * 100}%`,
+                                width: `${(bgWidth / mapWidth) * 100}%`,
+                                height: `${(bgHeight / mapHeight) * 100}%`,
+                                left: `${((bgOffsetX - offsetX) / mapWidth) * 100}%`,
+                                bottom: `${((bgOffsetY - offsetY) / mapHeight) * 100}%`,
                                 opacity: bgOpacity,
                                 maxWidth: 'none'
                             }}
@@ -484,14 +496,14 @@ export default function MapPage() {
                         </div>
                         {/* Top Right Label (Max) */}
                         <div className="absolute top-2 right-2 text-xs font-mono text-gray-400 font-bold bg-white/50 px-1 rounded">
-                            ({(offsetX + mapSize).toFixed(1)}, {(offsetY + mapSize).toFixed(1)})
+                            ({(offsetX + mapWidth).toFixed(1)}, {(offsetY + mapHeight).toFixed(1)})
                         </div>
                     </div>
 
                     {/* Manual Correction Readout */}
                     <div className="mt-4 flex gap-6 text-xs font-mono text-gray-500 bg-gray-50 px-4 py-2 rounded-full border">
                         <div>
-                            <span className="font-bold">ZOOM (Size):</span> {mapSize.toFixed(2)}m
+                            <span className="font-bold">SIZE:</span> {mapWidth.toFixed(2)}x{mapHeight.toFixed(2)}m
                         </div>
                         <div>
                             <span className="font-bold">OFFSET X:</span> {offsetX.toFixed(2)}m

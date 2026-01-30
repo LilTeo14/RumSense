@@ -8,12 +8,14 @@ export default function Engineering() {
     });
 
     // Map Config State - Initialize from LocalStorage
-    const [mapSize, setMapSize] = useState(() => localStorage.getItem('mapSize') || "10");
+    const [mapWidth, setMapWidth] = useState(() => localStorage.getItem('mapWidth') || "10");
+    const [mapHeight, setMapHeight] = useState(() => localStorage.getItem('mapHeight') || "10");
     const [offsetX, setOffsetX] = useState(() => localStorage.getItem('offsetX') || "-2");
     const [offsetY, setOffsetY] = useState(() => localStorage.getItem('offsetY') || "-2");
 
     // Background Image Config - Initialize from LocalStorage
-    const [bgSize, setBgSize] = useState(() => localStorage.getItem('bgSize') || "100");
+    const [bgWidth, setBgWidth] = useState(() => localStorage.getItem('bgWidth') || "10");
+    const [bgHeight, setBgHeight] = useState(() => localStorage.getItem('bgHeight') || "10");
     const [bgOffsetX, setBgOffsetX] = useState(() => localStorage.getItem('bgOffsetX') || "0");
     const [bgOffsetY, setBgOffsetY] = useState(() => localStorage.getItem('bgOffsetY') || "0");
     const [bgOpacity, setBgOpacity] = useState(() => localStorage.getItem('bgOpacity') || "1.0");
@@ -23,11 +25,13 @@ export default function Engineering() {
 
     // Auto-save map config changes to allow live preview in Map tab
     useEffect(() => {
-        localStorage.setItem('mapSize', mapSize);
+        localStorage.setItem('mapWidth', mapWidth);
+        localStorage.setItem('mapHeight', mapHeight);
         localStorage.setItem('offsetX', offsetX);
         localStorage.setItem('offsetY', offsetY);
 
-        localStorage.setItem('bgSize', bgSize);
+        localStorage.setItem('bgWidth', bgWidth);
+        localStorage.setItem('bgHeight', bgHeight);
         localStorage.setItem('bgOffsetX', bgOffsetX);
         localStorage.setItem('bgOffsetY', bgOffsetY);
         localStorage.setItem('bgOpacity', bgOpacity);
@@ -36,7 +40,7 @@ export default function Engineering() {
         localStorage.setItem('rotation', rotation.toString());
 
         window.dispatchEvent(new Event('storage'));
-    }, [mapSize, offsetX, offsetY, bgSize, bgOffsetX, bgOffsetY, bgOpacity, flipX, flipY, rotation]);
+    }, [mapWidth, mapHeight, offsetX, offsetY, bgWidth, bgHeight, bgOffsetX, bgOffsetY, bgOpacity, flipX, flipY, rotation]);
 
     const saveMapConfig = () => {
         // Redundant with auto-save, but keeps the button functional for user reassurance
@@ -130,12 +134,22 @@ export default function Engineering() {
                             <h4 className="font-semibold text-gray-600 text-sm border-b pb-1 mb-3">Vista (Coordenadas)</h4>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    <label className="text-sm font-medium text-gray-700">Zoom / Tamaño (Metros)</label>
+                                    <label className="text-sm font-medium text-gray-700">Ancho (X) Metros</label>
                                     <input
                                         type="number"
-                                        step="0.01"
-                                        value={mapSize}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMapSize(e.target.value)}
+                                        step="0.1"
+                                        value={mapWidth}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMapWidth(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Alto (Y) Metros</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={mapHeight}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMapHeight(e.target.value)}
                                         className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
                                     />
                                 </div>
@@ -169,12 +183,22 @@ export default function Engineering() {
                             </h4>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                    <label className="text-sm font-medium text-gray-700">Tamaño (%)</label>
+                                    <label className="text-sm font-medium text-gray-700">Ancho Img (m)</label>
                                     <input
                                         type="number"
-                                        step="1"
-                                        value={bgSize}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgSize(e.target.value)}
+                                        step="0.1"
+                                        value={bgWidth}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgWidth(e.target.value)}
+                                        className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <label className="text-sm font-medium text-gray-700">Alto Img (m)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={bgHeight}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgHeight(e.target.value)}
                                         className="w-24 border-gray-300 rounded-md px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
                                     />
                                 </div>
