@@ -42,13 +42,20 @@ class UDPServer(threading.Thread):
                         try:
                             if "data" in json_data and "pos" in json_data["data"]:
                                 pos = json_data["data"]["pos"]
+                                # Fix Timestamp: Detect Seconds vs ms
+                                raw_time = json_data["data"].get("time", 0)
+                                # Heuristic: If less than year 1973 (in ms, ~1e11), it is likely in seconds. 
+                                # Current time in ms is ~1.7e12, in seconds ~1.7e9.
+                                if raw_time < 3000000000: # < 3 billion (year 2065 in seconds)
+                                    raw_time *= 1000
+
                                 record_position(
                                     uid=json_data.get("uid"),
                                     device_name=json_data.get("deviceName"),
                                     x=pos[0] if len(pos) > 0 else 0.0,
                                     y=pos[1] if len(pos) > 1 else 0.0,
                                     z=pos[2] if len(pos) > 2 else 0.0,
-                                    timestamp=json_data["data"].get("time")
+                                    timestamp=raw_time
                                 )
                         except Exception as e:
                             logger.error(f"❌ DB Logic Error: {e}")
