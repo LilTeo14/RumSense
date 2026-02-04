@@ -391,6 +391,74 @@ export default function MapPage() {
                             Cargar Datos
                         </button>
 
+                        <div className="h-6 w-px bg-gray-300 mx-2"></div>
+
+                        <button
+                            onClick={() => {
+                                if (historyData.length === 0) return alert('No hay datos para descargar');
+                                const jsonString = JSON.stringify(historyData, null, 2);
+                                const blob = new Blob([jsonString], { type: "application/json" });
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `historial_${startDate.replace(/[:.]/g, '-')}_${endDate.replace(/[:.]/g, '-')}.json`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }}
+                            className="bg-green-600 text-white px-4 py-2 rounded-md font-medium text-sm hover:bg-green-700 transition flex items-center gap-2"
+                        >
+                            <span className="hidden sm:inline">Descargar</span>
+                        </button>
+
+                        <label className="bg-orange-500 text-white px-4 py-2 rounded-md font-medium text-sm hover:bg-orange-600 transition flex items-center gap-2 cursor-pointer">
+                            <span className="hidden sm:inline">Cargar</span>
+                            <input
+                                type="file"
+                                accept=".json"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                        try {
+                                            const json = JSON.parse(event.target?.result as string);
+                                            if (Array.isArray(json)) {
+                                                setHistoryData(json);
+                                                if (json.length > 0) {
+                                                    // Find range in data
+                                                    const times = json.map((d: any) => d.time);
+                                                    const minTime = Math.min(...times);
+                                                    const maxTime = Math.max(...times);
+
+                                                    // Update UI inputs (approximate, local string format is tricky but we try)
+                                                    // A proper robust solution would handle timezone offset carefully:
+                                                    const toLocalInput = (ts: number) => {
+                                                        const d = new Date(ts);
+                                                        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                                                        return d.toISOString().slice(0, 16);
+                                                    }
+
+                                                    setStartDate(toLocalInput(minTime));
+                                                    setEndDate(toLocalInput(maxTime));
+                                                    setPlaybackTime(minTime);
+                                                    alert(`Cargados ${json.length} puntos desde archivo.`);
+                                                }
+                                            } else {
+                                                alert('Formato de archivo inválido');
+                                            }
+                                        } catch (err) {
+                                            console.error(err);
+                                            alert('Error al leer el archivo');
+                                        }
+                                    };
+                                    reader.readAsText(file);
+                                }}
+                            />
+                        </label>
+
                         {historyData.length > 0 && (
                             <div className="flex-1 flex items-center gap-4 ml-4">
                                 <button
