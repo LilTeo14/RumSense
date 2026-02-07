@@ -182,7 +182,7 @@ export default function MapPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [historyPositions, setHistoryPositions] = useState<Record<string, HistoryLog>>({});
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number | null>(null);
 
     const fetchHistory = async () => {
         if (!startDate || !endDate) return alert('Seleccione rango de fechas');
