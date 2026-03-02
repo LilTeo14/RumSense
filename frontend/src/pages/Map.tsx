@@ -35,6 +35,61 @@ interface StatsData {
     movingTimeMinutes: number;
 }
 
+function calculateLocalStats(logs: HistoryLog[]): Record<string, StatsData> {
+    const stats: Record<string, StatsData> = {};
+
+    // Group by UID
+    const logsByUid: Record<string, HistoryLog[]> = {};
+    for (const log of logs) {
+        if (!logsByUid[log.uid]) {
+            logsByUid[log.uid] = [];
+        }
+        logsByUid[log.uid].push(log);
+    }
+
+    for (const uid in logsByUid) {
+        const userLogs = logsByUid[uid];
+        // Sort chronologically just in case
+        userLogs.sort((a, b) => a.time - b.time);
+
+        let totalDist = 0;
+        let movingTimeMs = 0;
+
+        if (userLogs.length === 0) continue;
+
+        const deviceName = userLogs[0].deviceName || uid;
+
+        for (let i = 1; i < userLogs.length; i++) {
+            const prev = userLogs[i - 1];
+            const curr = userLogs[i];
+
+            const dx = curr.pos[0] - prev.pos[0];
+            const dy = curr.pos[1] - prev.pos[1];
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            const timeDiff = curr.time - prev.time;
+
+            if (timeDiff > 5000) continue; // offline gap
+            if (timeDiff <= 0) continue;
+
+            const speed = dist / (timeDiff / 1000.0);
+
+            if (speed > 0.05) { // 5 cm/s threshold
+                totalDist += dist;
+                movingTimeMs += timeDiff;
+            }
+        }
+
+        stats[uid] = {
+            deviceName,
+            totalDistance: Number(totalDist.toFixed(2)),
+            movingTimeMinutes: Number((movingTimeMs / 1000.0 / 60.0).toFixed(2))
+        };
+    }
+
+    return stats;
+}
+
 export default function MapPage() {
     // --- Settings & Beacons ---
     // Offset and Size
@@ -444,6 +499,10 @@ export default function MapPage() {
                                                     setStartDate(toLocalInput(minTime));
                                                     setEndDate(toLocalInput(maxTime));
                                                     setPlaybackTime(minTime);
+
+                                                    // Calculate and set stats locally for uploaded file
+                                                    setStats(calculateLocalStats(json));
+
                                                     alert(`Cargados ${json.length} puntos desde archivo.`);
                                                 }
                                             } else {
