@@ -383,11 +383,11 @@ export default function MapPage() {
         }));
 
     return (
-        <div className="h-[calc(100vh-8rem)] flex gap-4 font-sans">
+        <div className="h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] flex gap-4 font-sans">
             {/* Main Column */}
-            <div className="flex-1 flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-full overflow-y-auto pb-2 pr-2">
                 {/* Header */}
-                <header className="mb-4 flex flex-wrap justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 gap-4">
+                <header className="shrink-0 mb-4 flex flex-wrap justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                             {viewMode === 'live' ? <Wifi className="text-green-500" /> : <History className="text-blue-500" />}
@@ -420,7 +420,7 @@ export default function MapPage() {
 
                 {/* History Controls */}
                 {viewMode === 'history' && (
-                    <div className="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap items-end gap-4">
+                    <div className="shrink-0 mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap items-end gap-4">
                         <div>
                             <label className="block text-xs font-semibold text-gray-500 mb-1">Inicio</label>
                             <input
@@ -584,11 +584,11 @@ export default function MapPage() {
                 )}
 
                 {/* Map Area */}
-                <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 relative overflow-hidden flex flex-col items-center justify-center p-8">
+                <div className="shrink-0 flex-1 bg-white rounded-xl shadow-sm border border-gray-200 relative overflow-hidden flex flex-col items-center justify-center p-8 min-h-[650px] lg:min-h-[750px]">
 
 
                     <div
-                        className="relative bg-gray-50 border-2 border-gray-200 rounded-lg shadow-inner select-none transition-all duration-300 overflow-hidden"
+                        className="relative bg-gray-50 border-2 border-gray-200 rounded-lg shadow-inner select-none transition-all duration-300 overflow-hidden shrink-0"
                         style={{ width: '100%', maxWidth: '80vh', aspectRatio: `${mapWidth}/${mapHeight}` }}
                     >
                         {/* Background Image */}
