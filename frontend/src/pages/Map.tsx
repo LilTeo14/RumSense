@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Activity } from 'lucide-react';
+import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Rewind, Activity } from 'lucide-react';
 
 interface PositionData {
     data: {
@@ -545,13 +545,39 @@ export default function MapPage() {
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={() => setPlaybackSpeed(s => s >= 50 ? 1 : s + 5)}
-                                    className="flex flex-col items-center text-xs font-bold text-gray-500 hover:text-blue-600"
-                                >
-                                    <FastForward className="w-4 h-4 mb-0.5" />
-                                    {playbackSpeed}x
-                                </button>
+                                <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1 border">
+                                    <button
+                                        onClick={() => setPlaybackSpeed(s => {
+                                            const speeds = [1, 2, 4, 8, 16];
+                                            const idx = speeds.indexOf(s);
+                                            if (idx === -1) return 1;
+                                            return idx > 0 ? speeds[idx - 1] : 1;
+                                        })}
+                                        className="flex flex-col items-center justify-center w-8 h-8 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-30 transition"
+                                        disabled={playbackSpeed === 1}
+                                        title="Reducir velocidad"
+                                    >
+                                        <Rewind className="w-4 h-4" />
+                                    </button>
+
+                                    <div className="text-xs font-bold text-blue-600 w-8 text-center select-none">
+                                        {playbackSpeed}x
+                                    </div>
+
+                                    <button
+                                        onClick={() => setPlaybackSpeed(s => {
+                                            const speeds = [1, 2, 4, 8, 16];
+                                            const idx = speeds.indexOf(s);
+                                            if (idx === -1) return 2;
+                                            return idx < speeds.length - 1 ? speeds[idx + 1] : 16;
+                                        })}
+                                        className="flex flex-col items-center justify-center w-8 h-8 rounded-md text-gray-500 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-30 transition"
+                                        disabled={playbackSpeed === 16}
+                                        title="Aumentar velocidad"
+                                    >
+                                        <FastForward className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
