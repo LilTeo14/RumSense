@@ -589,7 +589,7 @@ export default function MapPage() {
 
                     <div
                         className="relative bg-gray-50 border-2 border-gray-200 rounded-lg shadow-inner select-none transition-all duration-300 overflow-hidden shrink-0"
-                        style={{ width: '100%', maxWidth: '80vh', aspectRatio: `${mapWidth}/${mapHeight}` }}
+                        style={{ width: '100%', maxWidth: '80vh', aspectRatio: `${mapWidth}/${mapHeight * 0.9}` }}
                     >
                         {/* Background Image */}
                         <img
