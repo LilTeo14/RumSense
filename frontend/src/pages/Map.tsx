@@ -33,9 +33,10 @@ interface StatsData {
     deviceName: string;
     totalDistance: number;
     movingTimeMinutes: number;
+    interactions: number;
 }
 
-function calculateLocalStats(logs: HistoryLog[]): Record<string, StatsData> {
+function calculateLocalStats(logs: HistoryLog[], proxDistance: number, minTime: number): Record<string, StatsData> {
     const stats: Record<string, StatsData> = {};
 
     // Group by UID
@@ -83,8 +84,56 @@ function calculateLocalStats(logs: HistoryLog[]): Record<string, StatsData> {
         stats[uid] = {
             deviceName,
             totalDistance: Number(totalDist.toFixed(2)),
-            movingTimeMinutes: Number((movingTimeMs / 1000.0 / 60.0).toFixed(2))
+            movingTimeMinutes: Number((movingTimeMs / 1000.0 / 60.0).toFixed(2)),
+            interactions: 0
         };
+    }
+
+    // Interaction stats
+    const timeline = [...logs].sort((a, b) => a.time - b.time);
+    const currentPositions: Record<string, HistoryLog> = {};
+    const pairProxStart: Record<string, number> = {}; 
+    const pairInteracted: Record<string, boolean> = {}; 
+
+    for (const event of timeline) {
+        currentPositions[event.uid] = event;
+
+        // Compare this UID with all other active UIDs
+        const uids = Object.keys(currentPositions);
+        for (const otherUid of uids) {
+            if (otherUid === event.uid) continue;
+
+            const otherLog = currentPositions[otherUid];
+            
+            if (event.time - otherLog.time > 5000) {
+                const pairId = [event.uid, otherUid].sort().join('-');
+                delete pairProxStart[pairId];
+                delete pairInteracted[pairId];
+                continue;
+            }
+
+            const dx = event.pos[0] - otherLog.pos[0];
+            const dy = event.pos[1] - otherLog.pos[1];
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            const pairId = [event.uid, otherUid].sort().join('-');
+
+            if (dist <= proxDistance) {
+                if (!pairProxStart[pairId]) {
+                    pairProxStart[pairId] = event.time;
+                } else {
+                    const durationMs = event.time - pairProxStart[pairId];
+                    if (durationMs >= minTime * 1000 && !pairInteracted[pairId]) {
+                        if (stats[event.uid]) stats[event.uid].interactions++;
+                        if (stats[otherUid]) stats[otherUid].interactions++;
+                        pairInteracted[pairId] = true; 
+                    }
+                }
+            } else {
+                delete pairProxStart[pairId];
+                delete pairInteracted[pairId];
+            }
+        }
     }
 
     return stats;
@@ -140,6 +189,15 @@ export default function MapPage() {
         return saved ? JSON.parse(saved) : {};
     });
 
+    const [proxDistance, setProxDistance] = useState(() => {
+        const saved = localStorage.getItem('proxDistance');
+        return saved ? parseFloat(saved) : 1.5;
+    });
+    const [minTime, setMinTime] = useState(() => {
+        const saved = localStorage.getItem('minTime');
+        return saved ? parseInt(saved) : 5;
+    });
+
     useEffect(() => {
         const handleStorage = () => {
             setMapWidth(parseFloat(localStorage.getItem('mapWidth') || "10"));
@@ -159,6 +217,9 @@ export default function MapPage() {
 
             const savedMappings = localStorage.getItem('tagMappings');
             if (savedMappings) setTagMappings(JSON.parse(savedMappings));
+            
+            setProxDistance(parseFloat(localStorage.getItem('proxDistance') || "1.5"));
+            setMinTime(parseInt(localStorage.getItem('minTime') || "5"));
         };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
@@ -197,6 +258,11 @@ export default function MapPage() {
     const [livePositions, setLivePositions] = useState<Record<string, PositionData>>({});
     const [lastUpdateTimes, setLastUpdateTimes] = useState<Record<string, number>>({});
     const [isConnected, setIsConnected] = useState(false);
+
+    // Interaction trackers for visual representation
+    const activeProximityRef = useRef<Record<string, number>>({}); 
+    const interactionFlashedRef = useRef<Record<string, boolean>>({}); 
+    const flashingUntilRef = useRef<Record<string, number>>({}); 
 
     useEffect(() => {
         if (viewMode !== 'live') {
@@ -328,9 +394,9 @@ export default function MapPage() {
             const startTs = new Date(startDate).getTime();
             const endTs = new Date(endDate).getTime();
             const filteredData = historyData.filter(log => log.time >= startTs && log.time <= endTs);
-            setStats(calculateLocalStats(filteredData));
+            setStats(calculateLocalStats(filteredData, proxDistance, minTime));
         }
-    }, [historyData, startDate, endDate, viewMode]);
+    }, [historyData, startDate, endDate, viewMode, proxDistance, minTime]);
 
     // Auto-fetch stats for live mode (last hour)
     useEffect(() => {
@@ -390,6 +456,43 @@ export default function MapPage() {
             y: p.pos[1],
             isOffline: (playbackTime - p.time) > 5000
         }));
+
+    // Real-time or simulated continuous interaction tracker
+    const currentTime = viewMode === 'live' ? Date.now() : playbackTime;
+    
+    for (let i = 0; i < displayPositions.length; i++) {
+        for (let j = i + 1; j < displayPositions.length; j++) {
+            const tagA = displayPositions[i];
+            const tagB = displayPositions[j];
+            const pairId = [tagA.uid, tagB.uid].sort().join('-');
+
+            if (tagA.isOffline || tagB.isOffline) {
+                delete activeProximityRef.current[pairId];
+                delete interactionFlashedRef.current[pairId];
+                continue;
+            }
+
+            const dx = tagA.x - tagB.x;
+            const dy = tagA.y - tagB.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist <= proxDistance) {
+                if (!activeProximityRef.current[pairId]) {
+                    activeProximityRef.current[pairId] = currentTime;
+                } else {
+                    const elapsed = currentTime - activeProximityRef.current[pairId];
+                    if (elapsed >= minTime * 1000 && !interactionFlashedRef.current[pairId]) {
+                        flashingUntilRef.current[tagA.uid] = currentTime + 1000;
+                        flashingUntilRef.current[tagB.uid] = currentTime + 1000;
+                        interactionFlashedRef.current[pairId] = true;
+                    }
+                }
+            } else {
+                delete activeProximityRef.current[pairId];
+                delete interactionFlashedRef.current[pairId];
+            }
+        }
+    }
 
     return (
         <div className="h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] flex gap-4 font-sans">
@@ -633,6 +736,7 @@ export default function MapPage() {
                         {displayPositions.map((tag) => {
                             const { x, y } = getNormalized(tag.x, tag.y);
                             const displayName = tagMappings[tag.deviceName] || tag.deviceName;
+                            const isFlashing = (flashingUntilRef.current[tag.uid] || 0) > currentTime;
 
                             return (
                                 <div
@@ -640,8 +744,8 @@ export default function MapPage() {
                                     className={`absolute flex flex-col items-center justify-center transform -translate-x-1/2 translate-y-1/2 transition-all duration-300 ease-linear ${tag.isOffline ? 'opacity-40 grayscale' : 'opacity-100'}`}
                                     style={{ left: `${x}%`, bottom: `${y}%` }}
                                 >
-                                    <div className={`w-4 h-4 rounded-full border-2 border-white shadow-md relative z-10 ${tag.isOffline ? 'bg-gray-400' : 'bg-blue-600 animate-pulse'}`}></div>
-                                    <div className="mt-1 px-2 py-0.5 bg-white/90 backdrop-blur border border-gray-200 rounded text-[10px] font-bold text-gray-700 shadow-sm whitespace-nowrap z-20">
+                                    <div className={`w-4 h-4 rounded-full border-2 shadow-md relative z-10 ${isFlashing ? 'bg-green-500 border-green-200 animate-pulse ring-4 ring-green-500/50 scale-125' : tag.isOffline ? 'bg-gray-400 border-white' : 'bg-blue-600 border-white animate-pulse'}`}></div>
+                                    <div className={`mt-1 px-2 py-0.5 bg-white/90 backdrop-blur border rounded text-[10px] font-bold shadow-sm whitespace-nowrap z-20 ${isFlashing ? 'border-green-500 text-green-700' : 'border-gray-200 text-gray-700'}`}>
                                         {displayName}
                                     </div>
                                     <div className="text-[9px] text-gray-400 font-mono bg-white/80 px-1 rounded mt-0.5">
@@ -710,6 +814,12 @@ export default function MapPage() {
                                             <div className="text-xs text-gray-500 mb-0.5">Distancia Recorrida</div>
                                             <div className="font-mono font-bold text-gray-900 text-lg">
                                                 {stat.totalDistance} <span className="text-sm text-gray-500 font-normal">m</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-gray-500 mb-0.5">Interacciones</div>
+                                            <div className="font-mono font-bold text-gray-900 text-lg">
+                                                {stat.interactions !== undefined ? stat.interactions : '-'} <span className="text-sm text-gray-500 font-normal">encuentros</span>
                                             </div>
                                         </div>
                                     </div>

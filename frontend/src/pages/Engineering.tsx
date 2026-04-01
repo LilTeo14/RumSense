@@ -22,6 +22,10 @@ export default function Engineering() {
     const [flipX, setFlipX] = useState(() => localStorage.getItem('flipX') === 'true');
     const [flipY, setFlipY] = useState(() => localStorage.getItem('flipY') === 'true');
     const [rotation, setRotation] = useState(() => parseInt(localStorage.getItem('rotation') || '0'));
+    
+    // Interactions Config State
+    const [proxDistance, setProxDistance] = useState(() => localStorage.getItem('proxDistance') || "1.5");
+    const [minTime, setMinTime] = useState(() => localStorage.getItem('minTime') || "5");
 
     // Auto-save map config changes to allow live preview in Map tab
     useEffect(() => {
@@ -38,9 +42,12 @@ export default function Engineering() {
         localStorage.setItem('flipX', flipX.toString());
         localStorage.setItem('flipY', flipY.toString());
         localStorage.setItem('rotation', rotation.toString());
+        
+        localStorage.setItem('proxDistance', proxDistance.toString());
+        localStorage.setItem('minTime', minTime.toString());
 
         window.dispatchEvent(new Event('storage'));
-    }, [mapWidth, mapHeight, offsetX, offsetY, bgWidth, bgHeight, bgOffsetX, bgOffsetY, bgOpacity, flipX, flipY, rotation]);
+    }, [mapWidth, mapHeight, offsetX, offsetY, bgWidth, bgHeight, bgOffsetX, bgOffsetY, bgOpacity, flipX, flipY, rotation, proxDistance, minTime]);
 
     const saveMapConfig = () => {
         // Redundant with auto-save, but keeps the button functional for user reassurance
@@ -257,16 +264,31 @@ export default function Engineering() {
                                 <div>
                                     <div className="flex justify-between mb-2">
                                         <label className="text-sm font-medium text-gray-700">Distancia de Proximidad</label>
-                                        <span className="text-sm font-bold text-blue-600">1.5 m</span>
+                                        <span className="text-sm font-bold text-blue-600">{proxDistance} m</span>
                                     </div>
-                                    <input type="range" min="0.5" max="5.0" step="0.1" defaultValue="1.5" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                    <input 
+                                        type="range" 
+                                        min="0.5" 
+                                        max="5.0" 
+                                        step="0.1" 
+                                        value={proxDistance}
+                                        onChange={(e) => setProxDistance(e.target.value)}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+                                    />
                                 </div>
                                 <div>
                                     <div className="flex justify-between mb-2">
                                         <label className="text-sm font-medium text-gray-700">Tiempo Mínimo</label>
-                                        <span className="text-sm font-bold text-blue-600">5 s</span>
+                                        <span className="text-sm font-bold text-blue-600">{minTime} s</span>
                                     </div>
-                                    <input type="range" min="1" max="60" defaultValue="5" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                    <input 
+                                        type="range" 
+                                        min="1" 
+                                        max="60" 
+                                        value={minTime}
+                                        onChange={(e) => setMinTime(e.target.value)}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+                                    />
                                 </div>
                             </div>
                         </div>
