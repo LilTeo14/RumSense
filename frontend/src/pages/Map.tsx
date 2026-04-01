@@ -254,8 +254,7 @@ export default function MapPage() {
                 alert('No hay datos en este rango.');
             }
 
-            // Also fetch stats for this range
-            fetchStats(startTs, endTs);
+            // Stats are now automatically calculated locally via useEffect depending on time window
         } catch (e) {
             console.error(e);
             alert('Error cargando historial');
@@ -322,6 +321,16 @@ export default function MapPage() {
             console.error("Error fetching stats:", e);
         }
     };
+
+    // Calculate local stats automatically for history view
+    useEffect(() => {
+        if (viewMode === 'history' && historyData.length > 0 && startDate && endDate) {
+            const startTs = new Date(startDate).getTime();
+            const endTs = new Date(endDate).getTime();
+            const filteredData = historyData.filter(log => log.time >= startTs && log.time <= endTs);
+            setStats(calculateLocalStats(filteredData));
+        }
+    }, [historyData, startDate, endDate, viewMode]);
 
     // Auto-fetch stats for live mode (last hour)
     useEffect(() => {
@@ -500,9 +509,8 @@ export default function MapPage() {
                                                     setEndDate(toLocalInput(maxTime));
                                                     setPlaybackTime(minTime);
 
-                                                    // Calculate and set stats locally for uploaded file
-                                                    setStats(calculateLocalStats(json));
-
+                                                    // Stats are calculated automatically via useEffect
+                                                    
                                                     alert(`Cargados ${json.length} puntos desde archivo.`);
                                                 }
                                             } else {
