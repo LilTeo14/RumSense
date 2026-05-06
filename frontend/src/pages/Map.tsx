@@ -870,7 +870,11 @@ export default function MapPage() {
                             
                             <button
                                 onClick={() => {
-                                    const jsonString = JSON.stringify(historyData, null, 2);
+                                    const startTs = startDate ? new Date(startDate).getTime() : 0;
+                                    const endTs = endDate ? new Date(endDate).getTime() : Infinity;
+                                    const filteredData = historyData.filter(log => log.time >= startTs && log.time <= endTs);
+
+                                    const jsonString = JSON.stringify(filteredData, null, 2);
                                     const blob = new Blob([jsonString], { type: "application/json" });
                                     const url = URL.createObjectURL(blob);
                                     const link = document.createElement('a');
@@ -896,8 +900,12 @@ export default function MapPage() {
 
                             <button
                                 onClick={() => {
-                                    // Process historyData to flattened structure for Excel
-                                    const flattenedData = historyData.map(log => ({
+                                    const startTs = startDate ? new Date(startDate).getTime() : 0;
+                                    const endTs = endDate ? new Date(endDate).getTime() : Infinity;
+                                    const filteredData = historyData.filter(log => log.time >= startTs && log.time <= endTs);
+
+                                    // Process filteredData to flattened structure for Excel
+                                    const flattenedData = filteredData.map(log => ({
                                         Fecha: new Date(log.time).toLocaleDateString(),
                                         Hora: new Date(log.time).toLocaleTimeString(),
                                         Dispositivo: tagMappings[log.deviceName] || log.deviceName || log.uid,
