@@ -752,7 +752,7 @@ export default function MapPage() {
                                         {displayName}
                                     </div>
                                     <div className="text-[9px] text-gray-400 font-mono bg-white/80 px-1 rounded mt-0.5">
-                                        ({Number(Math.abs(tag.x)).toFixed(2)}, {Number(Math.abs(tag.y)).toFixed(2)})
+                                        ({Number(tag.x).toFixed(2)}, {Number(tag.y).toFixed(2)})
                                     </div>
                                 </div>
                             );
@@ -902,8 +902,8 @@ export default function MapPage() {
                                         Hora: new Date(log.time).toLocaleTimeString(),
                                         Dispositivo: tagMappings[log.deviceName] || log.deviceName || log.uid,
                                         "ID Único": log.uid,
-                                        "Posición X": Number(Math.abs(log.pos[0]).toFixed(2)),
-                                        "Posición Y": Number(Math.abs(log.pos[1]).toFixed(2))
+                                        "Posición X": Number(log.pos[0].toFixed(2)),
+                                        "Posición Y": Number((log.pos[1] * -1).toFixed(2))
                                     }));
 
                                     const worksheet = XLSX.utils.json_to_sheet(flattenedData);
