@@ -911,7 +911,7 @@ export default function MapPage() {
                                         Dispositivo: tagMappings[log.deviceName] || log.deviceName || log.uid,
                                         "ID Único": log.uid,
                                         "Posición X": Number(log.pos[0].toFixed(2)),
-                                        "Posición Y": Number((log.pos[1] * -1).toFixed(2))
+                                        "Posición Y": Number(log.pos[1].toFixed(2))
                                     }));
 
                                     const worksheet = XLSX.utils.json_to_sheet(flattenedData);
