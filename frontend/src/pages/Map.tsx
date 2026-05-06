@@ -35,6 +35,7 @@ interface StatsData {
     totalDistance: number;
     movingTimeMinutes: number;
     interactions: number;
+    interactionDetails?: Record<string, number>;
 }
 
 function calculateLocalStats(logs: HistoryLog[], proxDistance: number, minTime: number): Record<string, StatsData> {
@@ -86,7 +87,8 @@ function calculateLocalStats(logs: HistoryLog[], proxDistance: number, minTime: 
             deviceName,
             totalDistance: Number(totalDist.toFixed(2)),
             movingTimeMinutes: Number((movingTimeMs / 1000.0 / 60.0).toFixed(2)),
-            interactions: 0
+            interactions: 0,
+            interactionDetails: {}
         };
     }
 
@@ -125,8 +127,14 @@ function calculateLocalStats(logs: HistoryLog[], proxDistance: number, minTime: 
                 } else {
                     const durationMs = event.time - pairProxStart[pairId];
                     if (durationMs >= minTime * 1000 && !pairInteracted[pairId]) {
-                        if (stats[event.uid]) stats[event.uid].interactions++;
-                        if (stats[otherUid]) stats[otherUid].interactions++;
+                        if (stats[event.uid]) {
+                            stats[event.uid].interactions++;
+                            stats[event.uid].interactionDetails![otherUid] = (stats[event.uid].interactionDetails![otherUid] || 0) + 1;
+                        }
+                        if (stats[otherUid]) {
+                            stats[otherUid].interactions++;
+                            stats[otherUid].interactionDetails![event.uid] = (stats[otherUid].interactionDetails![event.uid] || 0) + 1;
+                        }
                         pairInteracted[pairId] = true; 
                     }
                 }
@@ -813,9 +821,23 @@ export default function MapPage() {
                                         </div>
                                         <div>
                                             <div className="text-xs text-gray-500 mb-0.5">Interacciones</div>
-                                            <div className="font-mono font-bold text-gray-900 text-lg">
-                                                {stat.interactions !== undefined ? stat.interactions : '-'} <span className="text-sm text-gray-500 font-normal">encuentros</span>
+                                            <div className="font-mono font-bold text-gray-900 text-lg flex items-baseline gap-1">
+                                                {stat.interactions !== undefined ? stat.interactions : '-'} <span className="text-sm text-gray-500 font-normal">encuentros totales</span>
                                             </div>
+                                            {stat.interactionDetails && Object.keys(stat.interactionDetails).length > 0 && (
+                                                <div className="mt-2 space-y-1">
+                                                    {Object.entries(stat.interactionDetails).map(([otherUid, count]) => {
+                                                        const resolvedName = stats[otherUid]?.deviceName || otherUid;
+                                                        const otherDisplayName = tagMappings[resolvedName] || resolvedName;
+                                                        return (
+                                                            <div key={otherUid} className="flex justify-between items-center text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
+                                                                <span>Con <span className="font-semibold">{otherDisplayName}</span></span>
+                                                                <span className="font-bold bg-white px-1.5 py-0.5 rounded shadow-sm">{count}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
