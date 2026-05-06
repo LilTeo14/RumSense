@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Rewind, Activity, Download, FileJson, FileSpreadsheet, X } from 'lucide-react';
+import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Rewind, Activity, Download, FileJson, FileSpreadsheet, X, Filter } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface PositionData {
@@ -930,6 +930,54 @@ export default function MapPage() {
                                     <div className="font-bold text-gray-800">Formato Excel (.xlsx)</div>
                                     <div className="text-xs text-gray-500 mt-1">
                                         Ideal para <span className="font-semibold text-gray-700">crear gráficos y analizar los datos</span> en Microsoft Excel, Google Sheets, etc.
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    const startTs = startDate ? new Date(startDate).getTime() : 0;
+                                    const endTs = endDate ? new Date(endDate).getTime() : Infinity;
+                                    const filteredData = historyData.filter(log => log.time >= startTs && log.time <= endTs);
+
+                                    const grouped: Record<string, { xSum: number, ySum: number, count: number, time: number, uid: string, deviceName: string }> = {};
+
+                                    filteredData.forEach(log => {
+                                        const sec = Math.floor(log.time / 1000);
+                                        const key = `${log.uid}_${sec}`;
+                                        if (!grouped[key]) {
+                                            grouped[key] = { xSum: 0, ySum: 0, count: 0, time: sec * 1000, uid: log.uid, deviceName: log.deviceName };
+                                        }
+                                        grouped[key].xSum += log.pos[0];
+                                        grouped[key].ySum += log.pos[1];
+                                        grouped[key].count += 1;
+                                    });
+
+                                    const averagedData = Object.values(grouped).map(group => ({
+                                        Fecha: new Date(group.time).toLocaleDateString(),
+                                        Hora: new Date(group.time).toLocaleTimeString(),
+                                        Dispositivo: tagMappings[group.deviceName] || group.deviceName || group.uid,
+                                        "ID Único": group.uid,
+                                        "Posición X": Number((group.xSum / group.count).toFixed(2)),
+                                        "Posición Y": Number((group.ySum / group.count).toFixed(2))
+                                    }));
+
+                                    const worksheet = XLSX.utils.json_to_sheet(averagedData);
+                                    const workbook = XLSX.utils.book_new();
+                                    XLSX.utils.book_append_sheet(workbook, worksheet, "Historial Filtrado");
+                                    
+                                    XLSX.writeFile(workbook, `historial_filtrado_${startDate.replace(/[:.]/g, '-')}_${endDate.replace(/[:.]/g, '-')}.xlsx`);
+                                    setShowDownloadModal(false);
+                                }}
+                                className="w-full flex items-start gap-4 p-4 rounded-xl border border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition text-left group"
+                            >
+                                <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition shrink-0">
+                                    <Filter className="w-6 h-6 text-purple-600" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-800">Excel Filtrado (1 pos/seg)</div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        Ideal para <span className="font-semibold text-gray-700">análisis simplificado</span>. Promedia todas las mediciones de cada segundo en una posición única por tag.
                                     </div>
                                 </div>
                             </button>
