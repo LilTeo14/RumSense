@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Rewind, Activity } from 'lucide-react';
+import { Wifi, WifiOff, FlipHorizontal, FlipVertical, RotateCw, Radio, History, Play, Pause, FastForward, Rewind, Activity, Download, FileJson, FileSpreadsheet, X } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface PositionData {
     data: {
@@ -140,6 +141,8 @@ function calculateLocalStats(logs: HistoryLog[], proxDistance: number, minTime: 
 }
 
 export default function MapPage() {
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+
     // --- Settings & Beacons ---
     // Offset and Size
     // Offset and Size
@@ -563,15 +566,7 @@ export default function MapPage() {
                         <button
                             onClick={() => {
                                 if (historyData.length === 0) return alert('No hay datos para descargar');
-                                const jsonString = JSON.stringify(historyData, null, 2);
-                                const blob = new Blob([jsonString], { type: "application/json" });
-                                const url = URL.createObjectURL(blob);
-                                const link = document.createElement('a');
-                                link.href = url;
-                                link.download = `historial_${startDate.replace(/[:.]/g, '-')}_${endDate.replace(/[:.]/g, '-')}.json`;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
+                                setShowDownloadModal(true);
                             }}
                             className="bg-green-600 text-white px-4 py-2 rounded-md font-medium text-sm hover:bg-green-700 transition flex items-center gap-2"
                         >
@@ -829,6 +824,90 @@ export default function MapPage() {
                     )}
                 </div>
             </div>
+        </div>
+
+            {/* Download Modal */}
+            {showDownloadModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                <Download className="w-5 h-5 text-blue-600" />
+                                Opciones de Descarga
+                            </h3>
+                            <button
+                                onClick={() => setShowDownloadModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <p className="text-sm text-gray-600">
+                                Seleccione el formato en el que desea descargar los datos históricos:
+                            </p>
+                            
+                            <button
+                                onClick={() => {
+                                    const jsonString = JSON.stringify(historyData, null, 2);
+                                    const blob = new Blob([jsonString], { type: "application/json" });
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.download = `historial_${startDate.replace(/[:.]/g, '-')}_${endDate.replace(/[:.]/g, '-')}.json`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    setShowDownloadModal(false);
+                                }}
+                                className="w-full flex items-start gap-4 p-4 rounded-xl border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition text-left group"
+                            >
+                                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition shrink-0">
+                                    <FileJson className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-800">Formato JSON</div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        Ideal para <span className="font-semibold text-gray-700">volver a cargar los datos</span> en esta misma página en el futuro. Conserva toda la estructura interna.
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    // Process historyData to flattened structure for Excel
+                                    const flattenedData = historyData.map(log => ({
+                                        Fecha: new Date(log.time).toLocaleDateString(),
+                                        Hora: new Date(log.time).toLocaleTimeString(),
+                                        Dispositivo: tagMappings[log.deviceName] || log.deviceName || log.uid,
+                                        "ID Único": log.uid,
+                                        "Posición X": Number(log.pos[0].toFixed(2)),
+                                        "Posición Y": Number(log.pos[1].toFixed(2))
+                                    }));
+
+                                    const worksheet = XLSX.utils.json_to_sheet(flattenedData);
+                                    const workbook = XLSX.utils.book_new();
+                                    XLSX.utils.book_append_sheet(workbook, worksheet, "Historial");
+                                    
+                                    XLSX.writeFile(workbook, `historial_${startDate.replace(/[:.]/g, '-')}_${endDate.replace(/[:.]/g, '-')}.xlsx`);
+                                    setShowDownloadModal(false);
+                                }}
+                                className="w-full flex items-start gap-4 p-4 rounded-xl border border-gray-200 hover:border-green-500 hover:bg-green-50 transition text-left group"
+                            >
+                                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition shrink-0">
+                                    <FileSpreadsheet className="w-6 h-6 text-green-600" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-800">Formato Excel (.xlsx)</div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        Ideal para <span className="font-semibold text-gray-700">crear gráficos y analizar los datos</span> en Microsoft Excel, Google Sheets, etc.
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
